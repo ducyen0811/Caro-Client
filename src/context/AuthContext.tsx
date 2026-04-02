@@ -12,7 +12,7 @@ type User = {
   id: string;
   username: string;
   email: string;
-  elo: number;
+  elo?: number;
 };
 
 type AuthContextType = {
@@ -27,21 +27,35 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const raw = localStorage.getItem("user");
+    if (!raw) return null;
+
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
+      return null;
+    }
+  });
+
   const [loading, setLoading] = useState(true);
 
   const refreshMe = async () => {
     try {
       const res = await api.get("/auth/me");
-      setUser(res.data.user);
+      const nextUser = res.data.user as User;
+      setUser(nextUser);
+      localStorage.setItem("user", JSON.stringify(nextUser));
     } catch {
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
       setUser(null);
     }
   };
 
   const loginWithToken = (token: string, nextUser: User) => {
     localStorage.setItem("accessToken", token);
+    localStorage.setItem("user", JSON.stringify(nextUser));
     setUser(nextUser);
   };
 
@@ -49,7 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await api.post("/auth/logout");
     } catch {}
+
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
@@ -64,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshMe().finally(() => setLoading(false));
   }, []);
 
-  const value = useMemo(
+  const value = useMemo<AuthContextType>(
     () => ({
       user,
       isAuthenticated: !!user,

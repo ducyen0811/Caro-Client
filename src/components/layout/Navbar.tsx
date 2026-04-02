@@ -7,24 +7,20 @@ export default function Navbar() {
 
   const navItems = [
     { to: "/", label: "Trang chủ" },
-    { to: "/lobby", label: "Phòng đấu" },
+    { to: "/lobby", label: "Lobby" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-galaxy-950/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-galaxy-950/80 backdrop-blur-xl">
       <div className="page-shell flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-blue-600 font-black text-galaxy-950 shadow-glow">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-300 to-blue-600 font-black text-black">
             C
           </div>
 
           <div>
-            <div className="text-sm font-bold tracking-wide text-white">
-              Caro Galaxy
-            </div>
-            <div className="text-xs text-slate-400">
-              Realtime PvP • Elo Ranking
-            </div>
+            <div className="text-sm font-bold text-white">Caro Galaxy</div>
+            <div className="text-xs text-slate-400">Chơi caro qua mạng</div>
           </div>
         </Link>
 
@@ -48,35 +44,24 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        {isAuthenticated ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-slate-300">{user?.username}</span>
+            <button
+              onClick={logout}
+              className="rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Đăng xuất
+            </button>
+          </div>
+        ) : (
           <Link
-            to="/lobby"
-            className="hidden rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-glow transition hover:scale-[1.02] md:inline-flex"
+            to="/login"
+            className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-4 py-2 text-sm font-semibold text-white"
           >
-            Tìm trận nhanh
+            Login
           </Link>
-
-          {isAuthenticated ? (
-            <>
-              <div className="hidden text-right sm:block">
-                <p className="text-xs text-slate-400">{user?.username}</p>
-                <p className="text-sm font-semibold text-white">
-                  Elo {user?.elo ?? 1000}
-                </p>
-              </div>
-
-              <button onClick={logout} className="btn-ghost hidden md:inline-flex">
-                Đăng xuất
-              </button>
-            </>
-          ) : (
-            <Link to="/login" className="btn-ghost hidden md:inline-flex">
-              Đăng Nhập Ngay
-            </Link>
-          )}
-
-          <div className="h-10 w-10 rounded-full border border-white/10 bg-gradient-to-br from-blue-400/70 to-cyan-300/70" />
-        </div>
+        )}
       </div>
     </header>
   );

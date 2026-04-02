@@ -1,16 +1,22 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { loginWithToken } = useAuth();
+  const { loginWithToken, user } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -24,7 +30,7 @@ export default function LoginPage() {
       });
 
       loginWithToken(res.data.accessToken, res.data.user);
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error: any) {
       setErrorText(
         error?.response?.data?.message || "Đăng nhập thất bại, vui lòng thử lại"
@@ -40,9 +46,11 @@ export default function LoginPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-sky-300">
           Welcome back
         </p>
+
         <h1 className="mt-2 text-3xl font-bold text-white">Đăng nhập</h1>
+
         <p className="mt-2 text-sm text-slate-400">
-          Đăng nhập để tiếp tục trải nghiệm Caro online.
+          Đăng nhập để chơi Caro online.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -50,6 +58,7 @@ export default function LoginPage() {
             <label className="mb-2 block text-sm text-slate-300">Email</label>
             <input
               className="input-galaxy"
+              type="email"
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -57,7 +66,9 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-300">Mật khẩu</label>
+            <label className="mb-2 block text-sm text-slate-300">
+              Mật khẩu
+            </label>
             <input
               className="input-galaxy"
               placeholder="••••••••"
@@ -74,7 +85,7 @@ export default function LoginPage() {
           )}
 
           <button disabled={loading} className="btn-primary w-full">
-            {loading ? "Đang đăng nhập..." : "Đăng Nhập Ngay"}
+            {loading ? "Đang đăng nhập..." : "Đăng nhập ngay"}
           </button>
 
           <p className="mt-4 text-center text-sm text-slate-400">
@@ -86,6 +97,14 @@ export default function LoginPage() {
               Tạo tại đây
             </Link>
           </p>
+
+          <button
+            type="button"
+            onClick={() => navigate("/", { replace: true })}
+            className="w-full text-sm text-slate-400 hover:text-white mt-3"
+          >
+            ← Về trang chủ
+          </button>
         </form>
       </div>
     </div>
